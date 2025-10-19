@@ -78,6 +78,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.request",
+                "shop.context_processors.cart_items_count",
             ],
         },
     },
@@ -150,3 +151,18 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# SSL Commerz
+SSLCOMMERZ_STORE_ID="rssof68f3b433e633c"
+SSLCOMMERZ_STORE_PASSWORD="rssof68f3b433e633c@ssl"
+SSLCOMMERZ_PAYMENT_URL=" https://sandbox.sslcommerz.com/gwprocess/v3/api.php"
+SSLCOMMERZ_VALIDATION_URL="https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php?wsdl"
+
+#  Email Setup
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'hajjisbazar@gmail.com'  # Your full email address
+EMAIL_HOST_PASSWORD = 'iirglniydmbuxeff'  # Use an App Password for Gmail
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

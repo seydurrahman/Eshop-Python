@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -12,13 +13,17 @@ class Category(models.Model):
         verbose_name = "Category"
         verbose_name_plural = "Categories"
         ordering = ["name"]
+
     def __str__(self):
         return self.name
-    
+
+
 class Product(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
-    category = models.ForeignKey(Category, related_name="products", on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category, related_name="products", on_delete=models.CASCADE
+    )
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField(default=1)
@@ -28,27 +33,33 @@ class Product(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to="products/%Y/%m/%d")
-    
+
     def __str__(self):
         return self.name
-    
+
     def average_rating(self):
         ratings = self.ratings.all()
         if ratings.exists():
             return sum(rating.rating for rating in ratings) / ratings.count()
         return 0
-    
+
+
 class Rating(models.Model):
-    product = models.ForeignKey(Product, related_name="ratings", on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, related_name="ratings", on_delete=models.CASCADE
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
     comment = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Rating {self.rating} by {self.user.username} for {self.product}"
-    
+
+
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
@@ -56,10 +67,14 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"Cart of {self.user.username}"
-    
+
     def get_total_price(self):
         return sum(item.get_cost() for item in self.items.all())
-    
+
+    def get_total_items(self):
+        return sum(item.quantity for item in self.items.all())
+
+
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -67,10 +82,11 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} of {self.product.name}"
-    
+
     def get_cost(self):
         return self.product.price * self.quantity
-    
+
+
 class Order(models.Model):
     STATUS = [
         ("Pending", "Pending"),
@@ -96,18 +112,21 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
-    
+
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
 
+
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name="order_items", on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        Order, related_name="order_items", on_delete=models.CASCADE
+    )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f"{self.quantity} of {self.product.name} in order {self.order.id}"
-    
+
     def get_cost(self):
         return self.price * self.quantity
